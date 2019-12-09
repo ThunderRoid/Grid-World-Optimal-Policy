@@ -34,15 +34,15 @@ class OptimalPolicy:
                         arg_max = None
                         for action in GW.all_actions:
                             _sum = 0
-                            possibilities = self.world.step((x, y), action)
-                            for a, s_t1, p in possibilities:
+                            info = self.world.step((x, y), action)
+                            for a, s_t1, p in info:
                                 _sum += p * self.value_table[s_t1[0]][s_t1[1]]
                             if (new_max is None) or (_sum > new_max):
                                 arg_max = action
                                 new_max = _sum
                         _sum = 0
-                        possibilities = self.world.step((x, y), policy[x][y])
-                        for a, s_t1, p in possibilities:
+                        info = self.world.step((x, y), policy[x][y])
+                        for a, s_t1, p in info:
                             _sum += p * self.value_table[s_t1[0]][s_t1[1]]
                         if new_max > _sum:
                             policy[x][y] = arg_max
@@ -51,6 +51,7 @@ class OptimalPolicy:
             if n_iterations >= self.max_iterations:
                 run = False
                 print("Ended: max iterations limit exceeded!")
+        print(self.value_table)
         return n_iterations
 
     def __policy_evaluation(self, policy):
@@ -71,8 +72,8 @@ class OptimalPolicy:
                         if action is None:
                             action = policy[x][y] = self.world.get_random_action()
 
-                        possibilities = self.world.step((x, y), action)
-                        for a, s_t1, p in possibilities:
+                        info = self.world.step((x, y), action)
+                        for a, s_t1, p in info:
                             new_value_table[x][y] += p * self.value_table[s_t1[0]][s_t1[1]]
                         new_value_table[x][y] *= self.discount_factor
                     max_norm = max(max_norm, abs(self.value_table[x][y] - new_value_table[x][y]))
