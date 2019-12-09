@@ -30,7 +30,7 @@ class GridWorld:
                          self.STATE_RED: -1,
                          self.STATE_GREEN: 1,
                          self.STATE_BLACK: 0}
-        self.n_states = len(self.__map) * len(self.__map[0])
+        self.n_states = (len(self.__map), len(self.__map[0]))
         self.n_actions = len(self.all_actions)
 
     def set_prob(self, forward, backward, left, right):

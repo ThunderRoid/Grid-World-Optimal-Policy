@@ -7,45 +7,45 @@ import math
 class OptimalPolicy:
     max_iterations = 1000
     discount_factor = 1.0
+    epsilon = 0.1
 
     def __init__(self, world):
         self.world = world
+        self.value_table = self.__generate_empty_matrix()
 
         # row, col = self.world.size
         # print([[0 for _ in range(row)] for _ in range(col)])
 
     def policy_iteration(self):
-        policy_table = np.ones([self.world.n_states, self.world.n_actions]) / self.world.n_actions
-        evaluated_policies = 0
-        for i in range(int(self.max_iterations)):
-            stable_policy = False
-            V = self.__policy_evaluation(policy_table)
-            for state in range(self.world.n_states):
-                current_action = np.argmax(policy_table[state])
-                action_value = self.one_step_lookahead(state, V)
-                best_action = np.argmax(action_value)
-        print(policy_table)
+        pass
 
     def __policy_evaluation(self, policy):
-        theta = 0.001
         n_iterations = 0
-        # value_table = np.zeros(self.world.size)
-        # print(value_table)
-
+        max_norm = 0
         for i in range(int(self.max_iterations)):
             n_iterations += 1
-            row, col = self.world.size
-            value_table = [[0 for _ in range(row)] for _ in range(col)]
+            max_norm = 0
+            new_value_table = self.__generate_empty_matrix()
+
+            col, row = self.world.n_states
             for x in range(row):
                 for y in range(col):
-                    value_table[x][y] = self.world.get_reward((x, y))
+                    new_value_table[x][y] = self.world.get_reward((x, y))
+
                     if self.world.cell_at(x, y) == GW.STATE_WHITE:
                         action = policy[x][y]
                         possibilities = self.world.step((x, y), action)
-                        for a, s1, p in possibilities:
-                            value_table[y][x] += p * self.utilities[s1[0]][s1[1]]
+                        for a, s_t1, p in possibilities:
+                            new_value_table[x][y] += p * self.value_table[s_t1[0]][s_t1[1]]
+                        new_value_table[x][y] *= self.discount_factor
+                    max_norm = max(max_norm, abs(self.value_table[x][y] - new_value_table[x][y]))
+            self.value_table = new_value_table
+            print(new_value_table)
+            if max_norm <= self.epsilon * (1 - self.discount_factor) / self.discount_factor:
+                break
+            elif n_iterations >= self.max_iterations:
+                break
 
-            print(value_table)
-            # for state in range(self.world.size):
-            #    v = 0
-            return 0
+    def __generate_empty_matrix(self):
+        col, row = self.world.n_states
+        return [[0 for _ in range(row)] for _ in range(col)]
