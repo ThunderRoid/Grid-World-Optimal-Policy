@@ -17,7 +17,7 @@ def main():
     grid_world.set_reward(0.02, -1, 1)  # state_white, state_red, state_green
 
     policy = OP(grid_world)
-    print(policy.policy_iteration())
+    print(policy.value_iteration())
 
 
 if __name__ == "__main__":
